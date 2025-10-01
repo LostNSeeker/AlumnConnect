@@ -23,9 +23,7 @@ import { ChatPage } from '@/pages/ChatPage'
 import { AlumniProjectApplicationsPage } from '@/pages/AlumniProjectApplicationsPage'
 import { DashboardRouter } from '@/pages/DashboardRouter'
 import { AuthProvider } from '@/contexts/AuthContext'
-import Team from '@/pages/Team'
-import PrivacyPolicy from './pages/PrivacyPolicy'
-import TermsOfService from './pages/TermsOfService'
+import { UserProfilePage } from '@/pages/UserProfilePage';
 
 function App() {
   return (
@@ -47,6 +45,7 @@ function App() {
             <Route path="/dashboard" element={<DashboardRouter />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/profile/:id" element={<ProfilePage />} />
+            <Route path="/users/:userId" element={<UserProfilePage />} />
             <Route path="/alumni/create-project" element={<CreateProjectPage />} />
             <Route path="/alumni/create-blog" element={<CreateBlogPage />} />
             <Route path="/alumni/mentees" element={<AlumniMenteesPage />} />
@@ -56,9 +55,6 @@ function App() {
             <Route path="/messages" element={<MessagesPage />} />
             <Route path="/messages/:id" element={<ChatPage />} />
             <Route path="/alumni/project-applications" element={<AlumniProjectApplicationsPage />} />
-            <Route path="/team" element={<Team />} />
-            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-            <Route path="/terms-of-service" element={<TermsOfService />} />
           </Routes>
         </Layout>
       </Router>
