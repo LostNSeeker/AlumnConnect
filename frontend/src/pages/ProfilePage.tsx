@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom' // Added for redirection
 import { useAuth } from '@/contexts/AuthContext'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -8,7 +9,10 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { GraduationCap, Building, MapPin, Briefcase, Award, Globe, Code, MessageCircle, Star, Edit, Save, X, Plus, Trash2, Home, Calendar, Phone, User, Camera } from 'lucide-react'
+import { 
+  GraduationCap, Building, MapPin, Briefcase, Award, Globe, Code, MessageCircle, 
+  Star, Edit, Save, X, Plus, Trash2, Home, Calendar, Phone, User, Camera, LogOut // Added LogOut icon
+} from 'lucide-react'
 import { Loader2 } from 'lucide-react'
 
 interface Skill {
@@ -55,7 +59,8 @@ interface Profile {
 }
 
 export const ProfilePage: React.FC = () => {
-  const { token, user } = useAuth()
+  const { token, user, logout } = useAuth() // Get logout function
+  const navigate = useNavigate() // Initialize navigate
   const [profile, setProfile] = useState<Profile | null>(null)
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState(false)
@@ -66,6 +71,10 @@ export const ProfilePage: React.FC = () => {
   useEffect(() => {
     const load = async () => {
       try {
+        if (!token) {
+            setLoading(false);
+            return;
+        }
         const res = await fetch('http://localhost:5001/api/profile', {
           headers: { Authorization: `Bearer ${token}` }
         })
@@ -73,7 +82,6 @@ export const ProfilePage: React.FC = () => {
           const data = await res.json()
           setProfile(data)
         } else if (user) {
-          // Fallback to context user if API is unavailable
           setProfile({
             id: user.id,
             name: user.name,
@@ -86,14 +94,16 @@ export const ProfilePage: React.FC = () => {
             languages: []
           })
         }
-      } finally {
+      } catch(e) {
+        console.error("Failed to fetch profile", e);
+      }
+      finally {
         setLoading(false)
       }
     }
     if (token) {
       load()
     } else if (user) {
-      // No token (e.g., after hard refresh), still show from context
       setProfile({
         id: user.id,
         name: user.name,
@@ -109,10 +119,10 @@ export const ProfilePage: React.FC = () => {
     } else {
       setLoading(false)
     }
-  }, [token])
+  }, [token, user])
 
   const handleEdit = () => {
-    setEditForm(profile)
+    setEditForm(JSON.parse(JSON.stringify(profile))) // Deep copy
     setEditing(true)
   }
 
@@ -145,6 +155,13 @@ export const ProfilePage: React.FC = () => {
     }
   }
 
+  const handleLogout = () => {
+    if (logout) {
+      logout();
+      navigate('/login'); // Redirect to login page after logout
+    }
+  };
+
   const handlePictureUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (!file || !token) return
@@ -163,7 +180,6 @@ export const ProfilePage: React.FC = () => {
       })
 
       if (res.ok) {
-        // Reload profile to get updated avatar
         const profileRes = await fetch('http://localhost:5001/api/profile', {
           headers: { Authorization: `Bearer ${token}` }
         })
@@ -230,7 +246,7 @@ export const ProfilePage: React.FC = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-            <Loader2 className="h-6 w-6 animate-spin" />
+          <Loader2 className="h-6 w-6 animate-spin" />
       </div>
     )
   }
@@ -238,7 +254,7 @@ export const ProfilePage: React.FC = () => {
   if (!profile) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-muted-foreground">Unable to load profile.</p>
+        <p className="text-muted-foreground">Unable to load profile. Please log in.</p>
       </div>
     )
   }
@@ -308,10 +324,16 @@ export const ProfilePage: React.FC = () => {
               </div>
               <div className="flex gap-2">
                 {!editing ? (
-                  <Button onClick={handleEdit} className="bg-white text-blue-600 hover:bg-gray-100">
-                    <Edit className="h-4 w-4 mr-2" />
-                    Edit Profile
-                  </Button>
+                   <div className="flex gap-2">
+                    <Button onClick={handleEdit} className="bg-white text-blue-600 hover:bg-gray-100">
+                      <Edit className="h-4 w-4 mr-2" />
+                      Edit Profile
+                    </Button>
+                    <Button onClick={handleLogout} variant="outline" className="bg-white/20 text-white border-white/30 hover:bg-white/30">
+                        <LogOut className="h-4 w-4 mr-2" />
+                        Logout
+                    </Button>
+                  </div>
                 ) : (
                   <div className="flex gap-2">
                     <Button variant="outline" onClick={handleCancel} className="bg-white/20 text-white border-white/30 hover:bg-white/30">
@@ -341,7 +363,7 @@ export const ProfilePage: React.FC = () => {
             <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  {/* <User className="h-5 w-5" /> */}
+                  <User className="h-5 w-5" />
                   About
                 </CardTitle>
               </CardHeader>
@@ -353,7 +375,7 @@ export const ProfilePage: React.FC = () => {
                       <Textarea
                         id="bio"
                         value={currentProfile.bio || ''}
-                        onChange={(e) => setEditForm({...currentProfile, bio: e.target.value})}
+                        onChange={(e) => setEditForm(prev => prev ? {...prev, bio: e.target.value} : null)}
                         placeholder="Tell us about yourself..."
                         rows={3}
                         className="bg-white/50"
@@ -364,7 +386,7 @@ export const ProfilePage: React.FC = () => {
                       <Input
                         id="phone"
                         value={currentProfile.phone || ''}
-                        onChange={(e) => setEditForm({...currentProfile, phone: e.target.value})}
+                        onChange={(e) => setEditForm(prev => prev ? {...prev, phone: e.target.value} : null)}
                         placeholder="Phone number"
                         className="bg-white/50"
                       />
@@ -374,7 +396,7 @@ export const ProfilePage: React.FC = () => {
                       <Input
                         id="website"
                         value={currentProfile.website || ''}
-                        onChange={(e) => setEditForm({...currentProfile, website: e.target.value})}
+                        onChange={(e) => setEditForm(prev => prev ? {...prev, website: e.target.value} : null)}
                         placeholder="Personal website"
                         className="bg-white/50"
                       />
@@ -384,8 +406,8 @@ export const ProfilePage: React.FC = () => {
                       <Input
                         id="linkedin"
                         value={currentProfile.linkedin || ''}
-                        onChange={(e) => setEditForm({...currentProfile, linkedin: e.target.value})}
-                        placeholder="LinkedIn profile"
+                        onChange={(e) => setEditForm(prev => prev ? {...prev, linkedin: e.target.value} : null)}
+                        placeholder="LinkedIn profile URL"
                         className="bg-white/50"
                       />
                     </div>
@@ -394,8 +416,8 @@ export const ProfilePage: React.FC = () => {
                       <Input
                         id="github"
                         value={currentProfile.github || ''}
-                        onChange={(e) => setEditForm({...currentProfile, github: e.target.value})}
-                        placeholder="GitHub profile"
+                        onChange={(e) => setEditForm(prev => prev ? {...prev, github: e.target.value} : null)}
+                        placeholder="GitHub profile URL"
                         className="bg-white/50"
                       />
                     </div>
@@ -442,11 +464,15 @@ export const ProfilePage: React.FC = () => {
                         <MessageCircle className="h-4 w-4 mr-2" />
                         Message
                       </Button>
+                      <Button variant="outline" className="w-full border-blue-200 text-blue-600 hover:bg-blue-50">
+                        <Star className="h-4 w-4 mr-2" />
+                        Follow
+                      </Button>
                     </div>
                   </>
                 )}
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
           </div>
 
           {/* Main Content Area */}
@@ -455,7 +481,7 @@ export const ProfilePage: React.FC = () => {
             <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  {/* <Briefcase className="h-5 w-5" /> */}
+                  <Briefcase className="h-5 w-5" />
                   Professional Information
                 </CardTitle>
               </CardHeader>
@@ -467,7 +493,7 @@ export const ProfilePage: React.FC = () => {
                       <Input
                         id="department"
                         value={currentProfile.department || ''}
-                        onChange={(e) => setEditForm({...currentProfile, department: e.target.value})}
+                        onChange={(e) => setEditForm(prev => prev ? {...prev, department: e.target.value} : null)}
                         placeholder="Department"
                         className="bg-white/50"
                       />
@@ -477,7 +503,7 @@ export const ProfilePage: React.FC = () => {
                       <Input
                         id="hall"
                         value={currentProfile.hall || ''}
-                        onChange={(e) => setEditForm({...currentProfile, hall: e.target.value})}
+                        onChange={(e) => setEditForm(prev => prev ? {...prev, hall: e.target.value} : null)}
                         placeholder="Hall of Residence"
                         className="bg-white/50"
                       />
@@ -487,7 +513,7 @@ export const ProfilePage: React.FC = () => {
                       <Input
                         id="branch"
                         value={currentProfile.branch || ''}
-                        onChange={(e) => setEditForm({...currentProfile, branch: e.target.value})}
+                        onChange={(e) => setEditForm(prev => prev ? {...prev, branch: e.target.value} : null)}
                         placeholder="Branch/Stream"
                         className="bg-white/50"
                       />
@@ -497,7 +523,7 @@ export const ProfilePage: React.FC = () => {
                       <Input
                         id="current_company"
                         value={currentProfile.current_company || ''}
-                        onChange={(e) => setEditForm({...currentProfile, current_company: e.target.value})}
+                        onChange={(e) => setEditForm(prev => prev ? {...prev, current_company: e.target.value} : null)}
                         placeholder="Current Company"
                         className="bg-white/50"
                       />
@@ -507,7 +533,7 @@ export const ProfilePage: React.FC = () => {
                       <Input
                         id="current_position"
                         value={currentProfile.current_position || ''}
-                        onChange={(e) => setEditForm({...currentProfile, current_position: e.target.value})}
+                        onChange={(e) => setEditForm(prev => prev ? {...prev, current_position: e.target.value} : null)}
                         placeholder="Current Position"
                         className="bg-white/50"
                       />
@@ -517,7 +543,7 @@ export const ProfilePage: React.FC = () => {
                       <Input
                         id="location"
                         value={currentProfile.location || ''}
-                        onChange={(e) => setEditForm({...currentProfile, location: e.target.value})}
+                        onChange={(e) => setEditForm(prev => prev ? {...prev, location: e.target.value} : null)}
                         placeholder="Location"
                         className="bg-white/50"
                       />
@@ -526,7 +552,7 @@ export const ProfilePage: React.FC = () => {
                       <Label htmlFor="work_preference">Work Preference</Label>
                       <Select
                         value={currentProfile.work_preference || ''}
-                        onValueChange={(value) => setEditForm({...currentProfile, work_preference: value as 'onsite' | 'remote' | 'hybrid'})}
+                        onValueChange={(value) => setEditForm(prev => prev ? {...prev, work_preference: value as 'onsite' | 'remote' | 'hybrid'} : null)}
                       >
                         <SelectTrigger className="bg-white/50">
                           <SelectValue placeholder="Select work preference" />
@@ -627,7 +653,7 @@ export const ProfilePage: React.FC = () => {
             <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle className="flex items-center gap-2">
-                  {/* <Code className="h-5 w-5" /> */}
+                  <Code className="h-5 w-5" />
                   Skills & Expertise
                 </CardTitle>
                 {editing && (
@@ -647,7 +673,7 @@ export const ProfilePage: React.FC = () => {
                           onChange={(e) => {
                             const newSkills = [...(currentProfile.skills || [])]
                             newSkills[index] = { ...skill, name: e.target.value }
-                            setEditForm({...currentProfile, skills: newSkills})
+                            setEditForm(prev => prev ? {...prev, skills: newSkills} : null)
                           }}
                           placeholder="Skill name"
                           className="flex-1"
@@ -657,7 +683,7 @@ export const ProfilePage: React.FC = () => {
                           onValueChange={(value) => {
                             const newSkills = [...(currentProfile.skills || [])]
                             newSkills[index] = { ...skill, type: value as 'technical' | 'soft' | 'language' }
-                            setEditForm({...currentProfile, skills: newSkills})
+                            setEditForm(prev => prev ? {...prev, skills: newSkills} : null)
                           }}
                         >
                           <SelectTrigger className="w-32">
@@ -674,7 +700,7 @@ export const ProfilePage: React.FC = () => {
                           onValueChange={(value) => {
                             const newSkills = [...(currentProfile.skills || [])]
                             newSkills[index] = { ...skill, proficiency: value as 'beginner' | 'intermediate' | 'advanced' | 'expert' }
-                            setEditForm({...currentProfile, skills: newSkills})
+                            setEditForm(prev => prev ? {...prev, skills: newSkills} : null)
                           }}
                         >
                           <SelectTrigger className="w-32">
@@ -716,7 +742,7 @@ export const ProfilePage: React.FC = () => {
             <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle className="flex items-center gap-2">
-                  {/* <Globe className="h-5 w-5" /> */}
+                  <Globe className="h-5 w-5" />
                   Languages
                 </CardTitle>
                 {editing && (
@@ -736,7 +762,7 @@ export const ProfilePage: React.FC = () => {
                           onChange={(e) => {
                             const newLanguages = [...(currentProfile.languages || [])]
                             newLanguages[index] = { ...language, name: e.target.value }
-                            setEditForm({...currentProfile, languages: newLanguages})
+                            setEditForm(prev => prev ? {...prev, languages: newLanguages} : null)
                           }}
                           placeholder="Language name"
                           className="flex-1"
@@ -746,7 +772,7 @@ export const ProfilePage: React.FC = () => {
                           onValueChange={(value) => {
                             const newLanguages = [...(currentProfile.languages || [])]
                             newLanguages[index] = { ...language, proficiency: value as 'beginner' | 'intermediate' | 'advanced' | 'native' }
-                            setEditForm({...currentProfile, languages: newLanguages})
+                            setEditForm(prev => prev ? {...prev, languages: newLanguages} : null)
                           }}
                         >
                           <SelectTrigger className="w-32">
@@ -785,7 +811,7 @@ export const ProfilePage: React.FC = () => {
             <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle className="flex items-center gap-2">
-                  {/* <Award className="h-5 w-5" /> */}
+                  <Award className="h-5 w-5" />
                   Achievements
                 </CardTitle>
                 {editing && (
@@ -795,7 +821,7 @@ export const ProfilePage: React.FC = () => {
                   </Button>
                 )}
               </CardHeader>
-                <CardContent>
+              <CardContent>
                 {editing ? (
                   <div className="space-y-4">
                     {currentProfile.achievements?.map((achievement, index) => (
@@ -806,7 +832,7 @@ export const ProfilePage: React.FC = () => {
                             onChange={(e) => {
                               const newAchievements = [...(currentProfile.achievements || [])]
                               newAchievements[index] = { ...achievement, title: e.target.value }
-                              setEditForm({...currentProfile, achievements: newAchievements})
+                              setEditForm(prev => prev ? {...prev, achievements: newAchievements} : null)
                             }}
                             placeholder="Achievement title"
                             className="flex-1"
@@ -816,7 +842,7 @@ export const ProfilePage: React.FC = () => {
                             onValueChange={(value) => {
                               const newAchievements = [...(currentProfile.achievements || [])]
                               newAchievements[index] = { ...achievement, type: value as 'award' | 'certification' | 'project' | 'publication' | 'other' }
-                              setEditForm({...currentProfile, achievements: newAchievements})
+                              setEditForm(prev => prev ? {...prev, achievements: newAchievements} : null)
                             }}
                           >
                             <SelectTrigger className="w-32">
@@ -839,7 +865,7 @@ export const ProfilePage: React.FC = () => {
                           onChange={(e) => {
                             const newAchievements = [...(currentProfile.achievements || [])]
                             newAchievements[index] = { ...achievement, description: e.target.value }
-                            setEditForm({...currentProfile, achievements: newAchievements})
+                            setEditForm(prev => prev ? {...prev, achievements: newAchievements} : null)
                           }}
                           placeholder="Description"
                           rows={2}
@@ -850,7 +876,7 @@ export const ProfilePage: React.FC = () => {
                             onChange={(e) => {
                               const newAchievements = [...(currentProfile.achievements || [])]
                               newAchievements[index] = { ...achievement, date_earned: e.target.value }
-                              setEditForm({...currentProfile, achievements: newAchievements})
+                              setEditForm(prev => prev ? {...prev, achievements: newAchievements} : null)
                             }}
                             placeholder="Date earned (YYYY-MM-DD)"
                             type="date"
@@ -861,7 +887,7 @@ export const ProfilePage: React.FC = () => {
                             onChange={(e) => {
                               const newAchievements = [...(currentProfile.achievements || [])]
                               newAchievements[index] = { ...achievement, issuer: e.target.value }
-                              setEditForm({...currentProfile, achievements: newAchievements})
+                              setEditForm(prev => prev ? {...prev, achievements: newAchievements} : null)
                             }}
                             placeholder="Issuer"
                             className="flex-1"
@@ -908,12 +934,11 @@ export const ProfilePage: React.FC = () => {
                     ))}
                   </div>
                 )}
-                </CardContent>
-              </Card>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>
     </div>
   )
 }
-
