@@ -9,11 +9,6 @@ import { parseJsonField } from '@/lib/dataUtils'
 import { 
   ArrowRight, 
   Users, 
-  BookOpen, 
-  Briefcase, 
-  Lightbulb,
-  Award,
-  Globe,
   Loader2
 } from 'lucide-react'
 
@@ -35,7 +30,6 @@ interface Project {
   created_by_email: string
 }
 
-
 interface Alumni {
   id: number
   name: string
@@ -56,20 +50,17 @@ export const LandingPage: React.FC = () => {
 
   const fetchData = async () => {
     try {
-      // Fetch projects and alumni in parallel
       const [projectsResponse, alumniResponse] = await Promise.all([
         fetch('http://localhost:5001/api/projects'),
         fetch('http://localhost:5001/api/alumni')
       ])
-
       if (projectsResponse.ok) {
         const projects = await projectsResponse.json()
-        setFeaturedProjects(projects.slice(0, 3)) // Show first 3 projects
+        setFeaturedProjects(projects.slice(0, 3))
       }
-
       if (alumniResponse.ok) {
         const alumni = await alumniResponse.json()
-        setAlumniStories(alumni.slice(0, 3)) // Show first 3 alumni
+        setAlumniStories(alumni.slice(0, 3))
       }
     } catch (error) {
       console.error('Error fetching data:', error)
@@ -79,18 +70,17 @@ export const LandingPage: React.FC = () => {
   }
 
   const stats = [
-    { label: "Active Projects", value: "5+", icon: Lightbulb },
-    { label: "Alumni Mentors", value: "3+", icon: Users },
-    { label: "Blog Posts", value: "4+", icon: Award },
-    { label: "Departments", value: "3+", icon: Globe }
+    { label: "Active Projects", value: "5+", icon: "💡" },
+    { label: "Alumni Mentors", value: "3+", icon: "👥" },
+    { label: "Blog Posts", value: "4+", icon: "🏆" },
+    { label: "Departments", value: "3+", icon: "🌍" }
   ]
 
   return (
-     <div className="min-h-screen">
+    <div className="min-h-screen">
       
       {/* Hero Section */}
-      <section className="relative bg-white h-screen flex items-center justify-center overflow-hidden pt-16">
-        {/* Stars Animation - Only in hero section */}
+      <section className="relative bg-white h-screen flex items-center justify-center overflow-hidden">
         <StarsAnimation 
           className="opacity-90" 
           starCount={150}
@@ -104,7 +94,7 @@ export const LandingPage: React.FC = () => {
         <div className="absolute top-60 right-1/3 w-8 h-8 bg-gradient-to-r from-blue-200 to-blue-300 rounded-full opacity-40 animate-bounce"></div>
         
         <div className="container mx-auto px-4 w-full">
-          <div className="max-w-5xl mx-auto text-center -mt-16 -translate-y-10">
+          <div className="max-w-5xl mx-auto text-center">
             <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-8 bg-gradient-to-r from-gray-900 via-blue-800 to-gray-900 bg-clip-text text-transparent">
               The Future of{' '}
               <span className="bg-gradient-to-r from-blue-500 to-blue-600 bg-clip-text text-transparent animate-pulse">Innovation</span>
@@ -137,100 +127,57 @@ export const LandingPage: React.FC = () => {
         </div>
       </section>
 
-        {/* What We Offer Section */}
-        <section className="py-24 bg-white border-t border-gray-100">
-          <div className="container mx-auto px-4">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">What We Offer</h2>
-              <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-                A comprehensive platform connecting students and alumni for growth, learning, and innovation.
-              </p>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
-              {stats.map((stat, index) => (
-                <div key={index} className="text-center group">
-                  <div className="flex justify-center mb-6">
-                    <div className="p-4 rounded-2xl bg-gradient-to-br from-blue-50 to-blue-100 group-hover:from-blue-100 group-hover:to-blue-200 transition-all duration-300 border border-blue-100">
-                      <stat.icon className="h-8 w-8 text-blue-700" />
-                    </div>
+      {/* What We Offer Section */}
+      <section className="py-24 bg-white border-t border-gray-100">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">What We Offer</h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              A comprehensive platform connecting students and alumni for growth, learning, and innovation.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+            {stats.map((stat, index) => (
+              <div key={index} className="text-center group">
+                <div className="flex justify-center mb-6">
+                  <div className="p-4 rounded-2xl bg-gradient-to-br from-blue-50 to-blue-100 group-hover:from-blue-100 group-hover:to-blue-200 transition-all duration-300 border border-blue-100">
+                    <span className="text-4xl">{stat.icon}</span>
                   </div>
-                  <div className="text-4xl font-bold mb-3">{stat.value}</div>
-                  <div className="text-sm font-medium text-gray-600">{stat.label}</div>
                 </div>
-              ))}
-            </div>
+                <div className="text-4xl font-bold mb-3">{stat.value}</div>
+                <div className="text-sm font-medium text-gray-600">{stat.label}</div>
+              </div>
+            ))}
+          </div>
 
-            {/* Doodle Illustrations */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-              {/* Project Collaboration */}
-              <div className="text-center group">
-                <div className="relative mb-8">
-                  <div className="w-32 h-32 mx-auto bg-gradient-to-br from-green-50 to-green-100 rounded-full flex items-center justify-center border-4 border-green-200 group-hover:scale-105 transition-transform duration-300">
-                    <div className="relative">
-                      <Briefcase className="h-12 w-12 text-green-600" />
-                      <div className="absolute -top-2 -right-2 w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center">
-                        <Lightbulb className="h-3 w-3 text-yellow-800" />
-                      </div>
-                    </div>
-                  </div>
-                  {/* Doodle elements */}
-                  <div className="absolute top-4 -left-4 w-8 h-8 bg-blue-200 rounded-full opacity-60 animate-bounce"></div>
-                  <div className="absolute bottom-4 -right-4 w-6 h-6 bg-purple-200 rounded-full opacity-60 animate-pulse"></div>
-                  <div className="absolute top-1/2 -left-8 w-4 h-4 bg-pink-200 rounded-full opacity-60 animate-bounce"></div>
-                </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+            <div className="text-center group">
+                <span className="text-7xl mb-6 inline-block">💼</span>
                 <h3 className="text-xl font-bold mb-3 text-gray-900">Project Collaboration</h3>
                 <p className="text-gray-600 leading-relaxed">
-                  Work on real-world projects with experienced alumni mentors. Gain hands-on experience and build your portfolio.
+                    Work on real-world projects with experienced alumni mentors. Gain hands-on experience and build your portfolio.
                 </p>
-              </div>
+            </div>
 
-              {/* Mentorship */}
-              <div className="text-center group">
-                <div className="relative mb-8">
-                  <div className="w-32 h-32 mx-auto bg-gradient-to-br from-purple-50 to-purple-100 rounded-full flex items-center justify-center border-4 border-purple-200 group-hover:scale-105 transition-transform duration-300">
-                    <div className="relative">
-                      <Users className="h-12 w-12 text-purple-600" />
-                      <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-400 rounded-full flex items-center justify-center">
-                        <Award className="h-2 w-2 text-green-800" />
-                      </div>
-                    </div>
-                  </div>
-                  {/* Doodle elements */}
-                  <div className="absolute top-2 -right-2 w-6 h-6 bg-yellow-200 rounded-full opacity-60 animate-pulse"></div>
-                  <div className="absolute bottom-2 -left-2 w-8 h-8 bg-blue-200 rounded-full opacity-60 animate-bounce"></div>
-                  <div className="absolute top-1/3 -right-6 w-4 h-4 bg-pink-200 rounded-full opacity-60 animate-bounce"></div>
-                </div>
+            <div className="text-center group">
+                <span className="text-7xl mb-6 inline-block">🤝</span>
                 <h3 className="text-xl font-bold mb-3 text-gray-900">Expert Mentorship</h3>
                 <p className="text-gray-600 leading-relaxed">
-                  Connect with successful alumni who can guide your career path and share valuable industry insights.
+                    Connect with successful alumni who can guide your career path and share valuable industry insights.
                 </p>
-              </div>
+            </div>
 
-              {/* Knowledge Sharing */}
-              <div className="text-center group">
-                <div className="relative mb-8">
-                  <div className="w-32 h-32 mx-auto bg-gradient-to-br from-orange-50 to-orange-100 rounded-full flex items-center justify-center border-4 border-orange-200 group-hover:scale-105 transition-transform duration-300">
-                    <div className="relative">
-                      <BookOpen className="h-12 w-12 text-orange-600" />
-                      <div className="absolute -top-1 -left-1 w-5 h-5 bg-blue-400 rounded-full flex items-center justify-center">
-                        <Globe className="h-2 w-2 text-blue-800" />
-                      </div>
-                    </div>
-                  </div>
-                  {/* Doodle elements */}
-                  <div className="absolute top-6 -left-6 w-6 h-6 bg-green-200 rounded-full opacity-60 animate-bounce"></div>
-                  <div className="absolute bottom-6 -right-6 w-8 h-8 bg-purple-200 rounded-full opacity-60 animate-pulse"></div>
-                  <div className="absolute top-1/4 -left-8 w-4 h-4 bg-yellow-200 rounded-full opacity-60 animate-bounce"></div>
-                </div>
+            <div className="text-center group">
+                <span className="text-7xl mb-6 inline-block">📚</span>
                 <h3 className="text-xl font-bold mb-3 text-gray-900">Knowledge Sharing</h3>
                 <p className="text-gray-600 leading-relaxed">
-                  Read inspiring stories, learn from experiences, and stay updated with the latest trends in technology and innovation.
+                    Read inspiring stories, learn from experiences, and stay updated with the latest trends in technology and innovation.
                 </p>
-              </div>
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
       {/* Featured Projects */}
       <section className="py-20">
@@ -402,7 +349,6 @@ export const LandingPage: React.FC = () => {
               <Button size="lg" variant="outline" className="border-2 border-blue-300 text-blue-700 hover:bg-blue-50" asChild>
                 <Link to="/blog">
                   Read Our Blog
-                  <BookOpen className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
             </div>
