@@ -782,6 +782,70 @@ def update_profile():
     finally:
         conn.close()
 
+
+
+
+
+@app.route('/api/users/<int:user_id>', methods=['GET'])
+@jwt_required() # Still require login to view profiles
+def get_user_profile(user_id):
+    conn = sqlite3.connect('launchpad.db')
+    cursor = conn.cursor()
+    
+    try:
+        # Get basic user info
+        cursor.execute('''
+            SELECT id, name, email, role, graduation_year, department, hall, branch, bio,
+                   current_company, current_position, location, work_preference,
+                   phone, website, linkedin, github, avatar
+            FROM users WHERE id = ?
+        ''', (user_id,))
+        user_data = cursor.fetchone()
+        
+        if not user_data:
+            return jsonify({'error': 'User not found'}), 404
+            
+        # Get skills, achievements, and languages (same logic as the /api/profile endpoint)
+        cursor.execute('SELECT skill_name, skill_type, proficiency_level FROM user_skills WHERE user_id = ?', (user_id,))
+        skills_data = cursor.fetchall()
+        
+        cursor.execute('SELECT title, description, achievement_type, date_earned, issuer FROM user_achievements WHERE user_id = ?', (user_id,))
+        achievements_data = cursor.fetchall()
+        
+        cursor.execute('SELECT language_name, proficiency_level FROM user_languages WHERE user_id = ?', (user_id,))
+        languages_data = cursor.fetchall()
+        
+        user = {
+            'id': user_data[0],
+            'name': user_data[1],
+            'email': user_data[2],
+            'role': user_data[3],
+            'graduation_year': user_data[4],
+            'department': user_data[5],
+            'hall': user_data[6],
+            'branch': user_data[7],
+            'bio': user_data[8],
+            'current_company': user_data[9],
+            'current_position': user_data[10],
+            'location': user_data[11],
+            'work_preference': user_data[12],
+            'phone': user_data[13],
+            'website': user_data[14],
+            'linkedin': user_data[15],
+            'github': user_data[16],
+            'avatar': user_data[17],
+            'skills': [{'name': s[0], 'type': s[1], 'proficiency': s[2]} for s in skills_data],
+            'achievements': [{'title': a[0], 'description': a[1], 'type': a[2], 'date_earned': a[3], 'issuer': a[4]} for a in achievements_data],
+            'languages': [{'name': l[0], 'proficiency': l[1]} for l in languages_data]
+        }
+        
+        return jsonify(user), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        conn.close()
+
 # Project application endpoints
 @app.route('/api/projects/<int:project_id>/apply', methods=['POST'])
 @jwt_required()
