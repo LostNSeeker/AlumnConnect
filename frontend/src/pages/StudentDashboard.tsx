@@ -186,25 +186,25 @@ export const StudentDashboard: React.FC = () => {
         <div className="mb-12">
           <h2 className="text-2xl font-bold text-gray-800 mb-6">Quick Actions</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Button asChild className="h-24 flex flex-col items-center justify-center bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+            <Button asChild className="h-24 flex flex-col items-center justify-center bg-gradient-to-br from-blue-100 to-blue-200 hover:from-blue-200 hover:to-blue-300 text-blue-700 shadow hover:shadow-md transition-all duration-300 hover:-translate-y-1">
               <Link to="/projects">
                 <Search className="h-6 w-6 mb-2" />
                 <span className="text-sm font-semibold">Browse Projects</span>
               </Link>
             </Button>
-            <Button asChild className="h-24 flex flex-col items-center justify-center bg-gradient-to-br from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-              <Link to="/alumni-connect">
+            <Button asChild className="h-24 flex flex-col items-center justify-center bg-gradient-to-br from-green-100 to-emerald-200 hover:from-green-200 hover:to-emerald-300 text-green-700 shadow hover:shadow-md transition-all duration-300 hover:-translate-y-1">
+              <Link to="/mentors">
                 <UserPlus className="h-6 w-6 mb-2" />
                 <span className="text-sm font-semibold">Find Mentors</span>
               </Link>
             </Button>
-            <Button asChild className="h-24 flex flex-col items-center justify-center bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+            <Button asChild className="h-24 flex flex-col items-center justify-center bg-gradient-to-br from-indigo-100 to-purple-200 hover:from-indigo-200 hover:to-purple-300 text-indigo-700 shadow hover:shadow-md transition-all duration-300 hover:-translate-y-1">
               <Link to="/blog">
                 <BookOpen className="h-6 w-6 mb-2" />
                 <span className="text-sm font-semibold">Read Blogs</span>
               </Link>
             </Button>
-            <Button asChild className="h-24 flex flex-col items-center justify-center bg-gradient-to-br from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+            <Button asChild className="h-24 flex flex-col items-center justify-center bg-gradient-to-br from-teal-100 to-cyan-200 hover:from-teal-200 hover:to-cyan-300 text-teal-700 shadow hover:shadow-md transition-all duration-300 hover:-translate-y-1">
               <Link to="/messages">
                 <MessageCircle className="h-6 w-6 mb-2" />
                 <span className="text-sm font-semibold">Messages</span>

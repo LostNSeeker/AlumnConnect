@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom' // Added for redirection
 import { useAuth } from '@/contexts/AuthContext'
+import { Link } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
@@ -288,18 +289,17 @@ export const ProfilePage: React.FC = () => {
                     id="profile-picture-upload"
                     disabled={uploadingPicture}
                   />
-                  <label htmlFor="profile-picture-upload">
-                    <Button 
-                      size="sm" 
-                      className="rounded-full h-8 w-8 p-0 bg-white text-blue-600 hover:bg-gray-100 cursor-pointer"
-                      disabled={uploadingPicture}
-                    >
+                  <label 
+                    htmlFor="profile-picture-upload"
+                    className="inline-block cursor-pointer"
+                  >
+                    <div className="rounded-full h-8 w-8 p-0 bg-white text-blue-600 hover:bg-gray-100 flex items-center justify-center shadow-md border border-gray-200">
                       {uploadingPicture ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
                       ) : (
                         <Camera className="h-4 w-4" />
                       )}
-                    </Button>
+                    </div>
                   </label>
                 </div>
               </div>
@@ -460,14 +460,12 @@ export const ProfilePage: React.FC = () => {
                       )}
                     </div>
                     <div className="pt-4 space-y-2">
-                      <Button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
-                        <MessageCircle className="h-4 w-4 mr-2" />
-                        Message
-                      </Button>
-                      <Button variant="outline" className="w-full border-blue-200 text-blue-600 hover:bg-blue-50">
-                        <Star className="h-4 w-4 mr-2" />
-                        Follow
-                      </Button>
+                      <Link to='/messages'>
+                        <Button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
+                          <MessageCircle className="h-4 w-4 mr-2" />
+                          Message
+                        </Button>
+                      </Link>
                     </div>
                   </>
                 )}

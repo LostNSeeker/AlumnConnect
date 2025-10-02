@@ -316,7 +316,7 @@ export const LandingPage: React.FC = () => {
                     "Experienced professional sharing insights and experiences from their career journey."
                   </p>
                   <Button variant="ghost" size="sm" className="w-full" asChild>
-                    <Link to="/alumni-connect">
+                    <Link to="/messages">
                       Connect
                       <ArrowRight className="ml-1 h-3 w-3" />
                     </Link>

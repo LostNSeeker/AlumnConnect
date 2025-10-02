@@ -24,6 +24,7 @@ import { AlumniProjectApplicationsPage } from '@/pages/AlumniProjectApplications
 import { DashboardRouter } from '@/pages/DashboardRouter'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { UserProfilePage } from '@/pages/UserProfilePage';
+import { FindMentorPage } from '@/pages/FindMentorPage';
 
 function App() {
   return (
@@ -55,6 +56,7 @@ function App() {
             <Route path="/messages" element={<MessagesPage />} />
             <Route path="/messages/:id" element={<ChatPage />} />
             <Route path="/alumni/project-applications" element={<AlumniProjectApplicationsPage />} />
+            <Route path="/mentors" element={<FindMentorPage />} />
           </Routes>
         </Layout>
       </Router>

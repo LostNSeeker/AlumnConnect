@@ -1320,6 +1320,44 @@ def get_alumni_project_applications():
         return jsonify({'error': str(e)}), 500
     finally:
         conn.close()
+  
+#Submit application        
+@app.route('/api/project-applications', methods=['POST'])
+@jwt_required()
+def create_project_application():
+    user_id = get_user_id_from_jwt()
+    data = request.get_json()
+
+    project_id = data.get('project_id')
+    message = data.get('message', '')
+
+    if not project_id:
+        return jsonify({'error': 'Project ID is required'}), 400
+
+    conn = sqlite3.connect('launchpad.db')
+    cursor = conn.cursor()
+
+    try:
+        # Check if project exists
+        cursor.execute('SELECT id FROM projects WHERE id = ?', (project_id,))
+        project = cursor.fetchone()
+        if not project:
+            return jsonify({'error': 'Project not found'}), 404
+
+        # Insert application
+        cursor.execute('''
+            INSERT INTO project_applications (project_id, student_id, message, status, created_at)
+            VALUES (?, ?, ?, ?, datetime('now'))
+        ''', (project_id, user_id, message, 'pending'))
+
+        conn.commit()
+        return jsonify({'message': 'Application submitted successfully'}), 201
+
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'error': str(e)}), 500
+    finally:
+        conn.close()
 
 # Accept/Decline project application
 @app.route('/api/project-applications/<int:application_id>/<action>', methods=['POST'])
